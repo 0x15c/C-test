@@ -66,7 +66,7 @@ int main()
         //debug info
         printf("ptA=[%f,%f],ptB=[%f,%f],ptC=[%f,%f]\n",test_triangle.ptA.x,test_triangle.ptA.y,test_triangle.ptB.x,test_triangle.ptB.y,test_triangle.ptC.x,test_triangle.ptC.y);
             
-        //fream drawing begin, scanning from left top to right bottom
+        //frame drawing begin, scanning from left top to right bottom
         for (plain_pt.y=1;plain_pt.y<=CON_ROWS-1;plain_pt.y++)
         {
             for(plain_pt.x=1;plain_pt.x<=CON_COLS;plain_pt.x++)
