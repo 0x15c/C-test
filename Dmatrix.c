@@ -13,22 +13,43 @@
 // operations has different operands.
 typedef struct Matrix{
     int col,row;
-    float *mat;
+    float *mat_index;
 }Matrix;
 void malloc_mat(Matrix *tMat);
 void free_mat(Matrix *tMat);
-float DMdet(float *tMat, int dim);
-float DMproduct(float *sMat, float *tMat);
-float DMtrans(float *tMat);
+float DMdet(Matrix *tMat, int dim);
+float DMproduct(Matrix *sMat, float *tMat);
+void DMtrans(Matrix *tMat);
 
-void malloc_mat(Matrix *Mat)
+// void malloc_mat(Matrix *Mat)
+// {
+//     int block_size = Mat->col*Mat->row;
+//     Mat->mat_index = (float*) malloc(sizeof(float)*block_size);
+    
+// }
+
+void DMtrans(Matrix *tMat)
 {
-    int block_size = Mat->col*Mat->row;
-    Mat->mat = (float*) malloc(sizeof(float)*block_size);
+    int i,j=0;
+    int block_size = tMat->col*tMat->row;
+    float *mat_index;
+    //mat_index = (float *) malloc(sizeof(float)*block_size);
+    // tmpMat->col = tMat->row;
+    // tmpMat->row = tMat->col;
+    //malloc_mat(tmpMat);
+    //*(&tmpMat->mat_index+(0+0*tMat->row)*sizeof(float)) = (float*)(&tMat->mat_index+(0+0*tMat->col)*sizeof(float));
+    for(i=0;i<tMat->col;i++)
+    {
+        for(j=0;j<tMat->row;j++)
+        {
+            *(&mat_index+(j+i*tMat->row)*sizeof(float)) = (float*)(&tMat->mat_index+(i+j*tMat->col)*sizeof(float));
+        }
+    }
+    for(i=0;i<block_size;i++)
+    {
+        *(&tMat->mat_index+i)=*(&mat_index+i);
+    }
 }
-float test_mat[2][3] = {{1.0f,2.0f,3.0f},{2.0f,1.0f,3.0f}};
-Matrix test={
-    .col=2,
-    .row=3,
-    .mat=&test_mat,
-};
+
+
+//-------------------------examples-------------------------
