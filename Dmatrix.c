@@ -9,6 +9,8 @@
  * 
  */
 //#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #define max(a,b) a>b?a:b
 // operations has different operands.
 typedef struct Matrix{
@@ -20,36 +22,41 @@ void free_mat(Matrix *tMat);
 float DMdet(Matrix *tMat, int dim);
 float DMproduct(Matrix *sMat, float *tMat);
 void DMtrans(Matrix *tMat);
-
-// void malloc_mat(Matrix *Mat)
-// {
-//     int block_size = Mat->col*Mat->row;
-//     Mat->mat_index = (float*) malloc(sizeof(float)*block_size);
-    
-// }
+void DMprint(Matrix *tMat);
 
 void DMtrans(Matrix *tMat)
 {
-    int i,j=0;
+    int i,j,tmp=0;
     int block_size = tMat->col*tMat->row;
-    float *mat_index;
-    //mat_index = (float *) malloc(sizeof(float)*block_size);
-    // tmpMat->col = tMat->row;
-    // tmpMat->row = tMat->col;
-    //malloc_mat(tmpMat);
-    //*(&tmpMat->mat_index+(0+0*tMat->row)*sizeof(float)) = (float*)(&tMat->mat_index+(0+0*tMat->col)*sizeof(float));
-    for(i=0;i<tMat->col;i++)
+    float *mat_index = NULL;
+    mat_index = (float*)malloc(sizeof(float)*block_size);
+    for(i=0;i<tMat->row;i++)
     {
-        for(j=0;j<tMat->row;j++)
+        for(j=0;j<tMat->col;j++)
         {
-            *(&mat_index+(j+i*tMat->row)*sizeof(float)) = (float*)(&tMat->mat_index+(i+j*tMat->col)*sizeof(float));
+            mat_index[i+j*tMat->row]=tMat->mat_index[j+i*tMat->col];
         }
     }
     for(i=0;i<block_size;i++)
     {
-        *(&tMat->mat_index+i)=*(&mat_index+i);
+        tMat->mat_index[i]=mat_index[i];
+    }
+    free(mat_index);
+    tmp = tMat->col;
+    tMat->col = tMat->row;
+    tMat->row = tmp;
+}
+void DMprint(Matrix *tMat)
+{
+    int i,j = 0;
+    for(i=0;i<tMat->row;i++)
+    {
+        for(j=0;j<tMat->col;j++)
+        {
+            printf("[%d,%d]=%f ",i,j,tMat->mat_index[j+i*tMat->col]);
+        }
+        printf("\n");
     }
 }
-
 
 //-------------------------examples-------------------------
