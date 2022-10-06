@@ -32,12 +32,13 @@ Matrix DMtrans(Matrix *tMat)
 }
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
 {
-    int i,j,k,l,p=0;
+    int p = 0;
     Matrix DMret;
     DMret.mat_index=NULL;
     if ((p = s1Mat->col) != s2Mat->row)
     return DMret; //check if the operation is legal, if not, return a NULL.
 
+    int i,j,k,l;
     int block_size = s1Mat->row*s2Mat->col;
     //Dtype *mat_index = NULL;
     //mat_index = (Dtype*)malloc(sizeof(Dtype)*block_size);
@@ -59,6 +60,30 @@ Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
         }
     }
     return DMret;
+}
+Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
+{// link 2 Matrices by column, which requires those have the same cloumns.
+    Matrix DMaug;
+    DMaug.mat_index=NULL;
+    if ((DMaug.row=s1Mat->row) != s2Mat->row)
+    return DMaug;
+
+    int i,j;
+    DMaug.col = s1Mat->col + s2Mat->col;
+    int block_size = DMaug.row*DMaug.col;
+    DMaug.mat_index = (Dtype*)malloc(sizeof(Dtype)*block_size);
+    for(i=0;i<DMaug.row;i++)
+    {
+        for(j=0;j<s1Mat->col;j++)
+        {
+            DMaug.mat_index[j+i*DMaug.col] = s1Mat->mat_index[j+i*s1Mat->col];
+        }
+        for(j>=s1Mat->col;j<DMaug.col;j++)
+        {
+            DMaug.mat_index[j+i*DMaug.col] = s2Mat->mat_index[j-s1Mat->col+i*s1Mat->col];
+        }
+    }
+    return DMaug;
 }
 void DMprint(Matrix *tMat)
 {// a straightforward print function

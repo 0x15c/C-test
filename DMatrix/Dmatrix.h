@@ -25,6 +25,7 @@ Dtype DMdet(Matrix *tMat);
 //Matrix* DMmalloc();
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat);
 Matrix DMtrans(Matrix *tMat);
+Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
 void DMprint(Matrix *tMat);
 void DMupper(Matrix *tMat);
 
