@@ -42,7 +42,6 @@ int main()
     printf("\n");
     DMprint(&ans);
     //heap memory must be freed before exit.
-    free(trans.mat_index);
-    free(ans.mat_index);
+    DMfree(2,ans.mat_index,trans.mat_index);
     return 0;
 }

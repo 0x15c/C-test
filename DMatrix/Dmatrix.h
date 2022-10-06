@@ -14,6 +14,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #define max(a,b) a>b?a:b
 #define Dtype float// for universal usage, replace float with double, uint32, ...
 // operations like transpose only need 1 operands, but commonly most need 2 or more.
@@ -28,5 +29,6 @@ Matrix DMtrans(Matrix *tMat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
 void DMprint(Matrix *tMat);
 void DMupper(Matrix *tMat);
+void DMfree(int num, Dtype *ap, ...);
 
 #endif

@@ -97,3 +97,15 @@ void DMprint(Matrix *tMat)
         printf("\n");
     }
 }
+void DMfree(int num, Dtype *ap, ...)
+{
+    va_list arglist;
+    va_start(arglist, ap);
+    Dtype *garbage;
+    for(int i=0;i<num;i++)
+    {
+        garbage = va_arg(arglist,Dtype*);
+        free(garbage);
+    }
+    va_end(arglist);
+}
