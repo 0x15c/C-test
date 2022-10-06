@@ -20,13 +20,14 @@
 #endif
 int main()
 {
-    Dtype test_mat[2][4] = {
+    Dtype test_mat[3][4] = {
         {2.0f,4.0f ,8.0f  ,16.0f  },
-        {0.5f,0.25f,0.125f,0.0625f},// those are "integers" for float32 type.
+        {0.5f,0.25f,0.125f,0.0625f},
+        {6.0f,2.5f ,4.5f   ,12.0f },// those are "integers" for float32 type.
     };
     Matrix test={
-        .col=4,
-        .row=2,//must be declared by hand
+        .row=3,
+        .col=4,//must be declared by hand
         .mat_index=&test_mat[0][0],// set the pointer on the first entry of matrix
     };
     DMprint(&test);
@@ -36,8 +37,11 @@ int main()
     Matrix ans = DMmultiply(&trans,&test);
     printf("\n");
     DMprint(&ans);
-
-
+    free(ans.mat_index);// before modifying ans, free the allocated memory first. Otherwise it may cause a memory leak.
+    ans = DMaugment(&trans,&trans);
+    printf("\n");
+    DMprint(&ans);
+    //heap memory must be freed before exit.
     free(trans.mat_index);
     free(ans.mat_index);
     return 0;
