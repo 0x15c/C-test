@@ -29,6 +29,6 @@ Matrix DMtrans(Matrix *tMat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
 void DMprint(Matrix *tMat);
 void DMupper(Matrix *tMat);
-void DMfree(int num, Dtype *ap, ...);
+// void DMfree(int num, Dtype *ap, ...);
 
 #endif
