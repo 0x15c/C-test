@@ -4,9 +4,9 @@
  * @brief header file for DMatrix, the toy matrix library
  * @version 0.1
  * @date 2022-10-04
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
+ *
  */
 #ifndef __Dmatrix_h_
 #define __Dmatrix_h_
@@ -16,19 +16,21 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #define MAX_MATRICES 200
-#define max(a,b) a>b?a:b
-#define Dtype float// for universal usage, replace float with double, uint32, ...
+#define max(a, b) a > b ? a : b
+#define Dtype float // for universal usage, replace float with double, uint32, ...
 // operations like transpose only need 1 operands, but commonly most need 2 or more.
-typedef struct Matrix{
-    int col,row;
-    Dtype *mat_index;// To hold the matrix as a 1-dimensional array.
-}Matrix;// A matrix must be clarified once it has been decleared.
-typedef struct memMgmt{
+typedef struct Matrix
+{
+    int col, row;
+    Dtype *mat_index; // To hold the matrix as a 1-dimensional array.
+} Matrix;             // A matrix must be clarified once it has been decleared.
+typedef struct memMgmt
+{
     Dtype *matrix_p;
-    struct memMgmt *next;
-}memMgmt;
+    struct memMgmt *next; // the struct of the memory management linklist
+} memMgmt;
 Dtype DMdet(Matrix *tMat);
-//Matrix* DMmalloc();
+// Matrix* DMmalloc();
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat);
 Matrix DMtrans(Matrix *tMat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
@@ -36,6 +38,7 @@ void DMprint(Matrix *tMat);
 void DMupper(Matrix *tMat);
 void DMfree_single(Matrix tMat);
 void DMfree(int num, Matrix ap, ...);
-memMgmt* DMinit();
-memMgmt* DMadd_p(Dtype *pMat_index,memMgmt *link);
+memMgmt *DMinit();
+memMgmt *DMadd_p(Dtype *pMat_index, memMgmt *link);
+void free_pList(memMgmt *heap);
 #endif
