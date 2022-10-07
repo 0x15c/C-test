@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#define MAX_MATRICES 200
 #define max(a,b) a>b?a:b
 #define Dtype float// for universal usage, replace float with double, uint32, ...
 // operations like transpose only need 1 operands, but commonly most need 2 or more.
@@ -22,6 +23,10 @@ typedef struct Matrix{
     int col,row;
     Dtype *mat_index;// To hold the matrix as a 1-dimensional array.
 }Matrix;// A matrix must be clarified once it has been decleared.
+typedef struct memMgmt{
+    Dtype *matrix_p;
+    struct memMgmt *next;
+}memMgmt;
 Dtype DMdet(Matrix *tMat);
 //Matrix* DMmalloc();
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat);
@@ -29,6 +34,8 @@ Matrix DMtrans(Matrix *tMat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
 void DMprint(Matrix *tMat);
 void DMupper(Matrix *tMat);
-// void DMfree(int num, Dtype *ap, ...);
-
+void DMfree_single(Matrix tMat);
+void DMfree(int num, Matrix ap, ...);
+memMgmt* DMinit();
+memMgmt* DMadd_p(Dtype *pMat_index,memMgmt *link);
 #endif

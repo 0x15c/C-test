@@ -11,6 +11,24 @@
  * 
  */
 #include "Dmatrix.h"
+int mem_usage;//count by Byte
+memMgmt *pList = NULL;
+memMgmt* DMinit()
+{
+    memMgmt *init = (memMgmt*)malloc(sizeof(memMgmt));
+    init->matrix_p = NULL;
+    init->next = NULL;
+    return init;
+}
+memMgmt* DMadd_p(Dtype *pMat_index,memMgmt *link)
+{
+    memMgmt *link_next = (memMgmt*)malloc(sizeof(memMgmt));
+    link->next = link_next;
+    link_next->matrix_p = pMat_index;
+    link_next->next = NULL;
+
+    return link_next;
+}
 Matrix DMtrans(Matrix *tMat)
 {
     int i,j,tmp=0;
@@ -27,6 +45,8 @@ Matrix DMtrans(Matrix *tMat)
     }
     mat_ans.row=tMat->col;
     mat_ans.col=tMat->row;
+    mem_usage += block_size*sizeof(Dtype);
+    pList = DMadd_p(mat_ans.mat_index,pList);
     return mat_ans;
     
 }
@@ -40,8 +60,6 @@ Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
 
     int i,j,k,l;
     int block_size = s1Mat->row*s2Mat->col;
-    //Dtype *mat_index = NULL;
-    //mat_index = (Dtype*)malloc(sizeof(Dtype)*block_size);
     
     DMret.row=s1Mat->row;
     DMret.col=s2Mat->col;
@@ -59,6 +77,8 @@ Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
             }
         }
     }
+    mem_usage += block_size*sizeof(Dtype);
+    pList = DMadd_p(DMret.mat_index,pList);
     return DMret;
 }
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
@@ -83,6 +103,8 @@ Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
             DMaug.mat_index[j+i*DMaug.col] = s2Mat->mat_index[j-s1Mat->col+i*s1Mat->col];
         }
     }
+    mem_usage += block_size*sizeof(Dtype);
+    pList = DMadd_p(DMaug.mat_index,pList);
     return DMaug;
 }
 void DMprint(Matrix *tMat)
@@ -97,15 +119,16 @@ void DMprint(Matrix *tMat)
         printf("\n");
     }
 }
-// void DMfree(int num, Dtype *ap, ...)
-// {
-//     va_list arglist;
-//     va_start(arglist, ap);
-//     Dtype *garbage;
-//     for(int i=0;i<num;i++)
-//     {
-//         garbage = va_arg(arglist,Dtype*);
-//         free(garbage);
-//     }
-//     va_end(arglist);
-// }
+void DMfree_single(Matrix tMat)
+{
+    if (tMat.mat_index!=NULL)
+    free(tMat.mat_index);
+    tMat.mat_index=NULL;
+}
+void free_pList()
+{
+    while(pList->next != NULL)
+    {
+        free(pList->matrix_p);
+    }
+}

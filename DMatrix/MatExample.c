@@ -20,6 +20,7 @@
 #endif
 int main()
 {
+    pList = DMinit();
     Dtype test_mat[3][4] = {
         {2.0f,4.0f ,8.0f  ,16.0f  },
         {0.5f,0.25f,0.125f,0.0625f},
@@ -33,15 +34,18 @@ int main()
     DMprint(&test);
     Matrix trans = DMtrans(&test);
     printf("\n");
-    DMprint(&trans);
+    //DMprint(&trans);
     Matrix ans = DMmultiply(&trans,&test);
     printf("\n");
     DMprint(&ans);
-    free(ans.mat_index);// before modifying ans, free the allocated memory first. Otherwise it may cause a memory leak.
+    //DMfree_single(ans);// before modifying ans, free the allocated memory first. Otherwise it may cause a memory leak.
     ans = DMaugment(&trans,&trans);
     printf("\n");
     DMprint(&ans);
+    
     //heap memory must be freed before exit.
-//     DMfree(2,ans.mat_index,trans.mat_index);
+    //DMfree(2,ans,trans);
+    printf("%d",mem_usage);
+    free_pList();
     return 0;
 }
