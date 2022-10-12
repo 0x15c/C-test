@@ -22,13 +22,14 @@ int main()
 {
     memMgmt *heap = DMinit();
     // starting with a declaration of heap memory, which indicates the start of the linklist
-    Dtype test_mat[3][4] = {
+    Dtype test_mat[4][4] = {
         {2.0f, 4.0f, 8.0f, 16.0f},
         {0.5f, 0.25f, 0.125f, 0.0625f},
-        {6.0f, 2.5f, 4.5f, 12.0f}, // those are "integers" for float32 type.
+        {6.0f, 2.5f, 4.5f, 12.0f},
+        {3.5f, 2.7f, 9.3f, 0.8f},
     };
     Matrix test = {
-        .row = 3,
+        .row = 4,
         .col = 4,                     // must be declared by hand
         .mat_index = &test_mat[0][0], // set the pointer on the first entry of matrix
     };
@@ -41,8 +42,11 @@ int main()
     ans = DMaugment(&trans, &trans);
     Matrix ans2 = DMaugment(&ans, &ans);
     printf("\n");
-    DMprint(&ans2);
     printf("%d\n", mem_usage);
+    Matrix ans3 = DMZeros(4);
+    DMprint(&ans3);
+    Matrix ansans = DMtrans(&ans2);
+    DMprint(&ansans);
     free_pList(heap);
     // ending with a free function.
     return 0;

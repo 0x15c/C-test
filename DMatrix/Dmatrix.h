@@ -14,10 +14,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #define MAX_MATRICES 200
-#define max(a, b) a > b ? a : b
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define _eps 0.00000000000000001f
 #define Dtype float // for universal usage, replace float with double, uint32, ...
+#define _is_equal(a, b) (abs((a) - (b)) < _eps ? (1) : (0))
 // operations like transpose only need 1 operands, but commonly most need 2 or more.
 typedef struct Matrix
 {
@@ -32,12 +33,16 @@ typedef struct memMgmt
 Dtype DMdet(Matrix *tMat);
 // Matrix* DMmalloc();
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat);
-Matrix DMtrans(Matrix *tMat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
+Matrix DMtrans(Matrix *tMat);
+Matrix DMupper(Matrix *tMat);
+Matrix DMinv(Matrix *tMat);
+
+Matrix DMIdenti(int dim);
+Matrix DMZeros(int dim);
+
 void DMprint(Matrix *tMat);
-void DMupper(Matrix *tMat);
-void DMfree_single(Matrix tMat);
-void DMfree(int num, Matrix ap, ...);
+
 memMgmt *DMinit();
 memMgmt *DMadd_p(Dtype *pMat_index, memMgmt *link);
 void free_pList(memMgmt *heap);

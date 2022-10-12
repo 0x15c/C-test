@@ -56,59 +56,93 @@ Matrix DMtrans(Matrix *tMat)
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
 {
     int p = 0;
-    Matrix DMret;
-    DMret.mat_index = NULL;
+    Matrix mat_ans;
+    mat_ans.mat_index = NULL;
     if ((p = s1Mat->col) != s2Mat->row)
-        return DMret; // check if the operation is legal, if not, return a NULL.
+        return mat_ans; // check if the operation is legal, if not, return a NULL.
 
     int i, j, k, l;
     int block_size = s1Mat->row * s2Mat->col;
 
-    DMret.row = s1Mat->row;
-    DMret.col = s2Mat->col;
+    mat_ans.row = s1Mat->row;
+    mat_ans.col = s2Mat->col;
 
-    DMret.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
-    for (i = 0; i < DMret.row; i++)
+    mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
+    for (i = 0; i < mat_ans.row; i++)
     {
-        for (j = 0; j < DMret.col; j++)
+        for (j = 0; j < mat_ans.col; j++)
         {
-            DMret.mat_index[i * DMret.row + j] = 0;
+            mat_ans.mat_index[i * mat_ans.row + j] = 0;
 
             for (k = 0; k < p; k++)
             {
-                DMret.mat_index[i * DMret.row + j] += s1Mat->mat_index[i * s1Mat->col + k] * s2Mat->mat_index[k * s2Mat->col + j];
+                mat_ans.mat_index[i * mat_ans.row + j] += s1Mat->mat_index[i * s1Mat->col + k] * s2Mat->mat_index[k * s2Mat->col + j];
             }
         }
     }
     mem_usage += block_size * sizeof(Dtype);
-    pList = DMadd_p(DMret.mat_index, pList);
-    return DMret;
+    pList = DMadd_p(mat_ans.mat_index, pList);
+    return mat_ans;
 }
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
 { // link 2 Matrices by column, which requires those have the same cloumns.
-    Matrix DMaug;
-    DMaug.mat_index = NULL;
-    if ((DMaug.row = s1Mat->row) != s2Mat->row)
-        return DMaug;
+    Matrix mat_ans;
+    mat_ans.mat_index = NULL;
+    if ((mat_ans.row = s1Mat->row) != s2Mat->row)
+        return mat_ans;
 
     int i, j;
-    DMaug.col = s1Mat->col + s2Mat->col;
-    int block_size = DMaug.row * DMaug.col;
-    DMaug.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
-    for (i = 0; i < DMaug.row; i++)
+    mat_ans.col = s1Mat->col + s2Mat->col;
+    int block_size = mat_ans.row * mat_ans.col;
+    mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
+    for (i = 0; i < mat_ans.row; i++)
     {
         for (j = 0; j < s1Mat->col; j++)
         {
-            DMaug.mat_index[j + i * DMaug.col] = s1Mat->mat_index[j + i * s1Mat->col];
+            mat_ans.mat_index[j + i * mat_ans.col] = s1Mat->mat_index[j + i * s1Mat->col];
         }
-        for (j >= s1Mat->col; j < DMaug.col; j++)
+        for (j >= s1Mat->col; j < mat_ans.col; j++)
         {
-            DMaug.mat_index[j + i * DMaug.col] = s2Mat->mat_index[j - s1Mat->col + i * s1Mat->col];
+            mat_ans.mat_index[j + i * mat_ans.col] = s2Mat->mat_index[j - s1Mat->col + i * s1Mat->col];
         }
     }
     mem_usage += block_size * sizeof(Dtype);
-    pList = DMadd_p(DMaug.mat_index, pList);
-    return DMaug;
+    pList = DMadd_p(mat_ans.mat_index, pList);
+    return mat_ans;
+}
+Matrix DMZeros(int dim)
+{
+    int block_size = dim * dim;
+    Matrix mat_ans;
+    mat_ans.col = dim;
+    mat_ans.row = dim;
+    mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
+    for (int i = 0; i < block_size; i++)
+    {
+        mat_ans.mat_index[i] = 0.0f;
+    }
+    mem_usage += block_size * sizeof(Dtype);
+    pList = DMadd_p(mat_ans.mat_index, pList);
+    return mat_ans;
+}
+Matrix DMIdenti(int dim)
+{
+    int block_size = dim * dim;
+    Matrix mat_ans;
+    mat_ans.col = dim;
+    mat_ans.row = dim;
+    mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
+    for (int i = 0; i < block_size; i++)
+    {
+        mat_ans.mat_index[i] = 0.0f;
+    }
+    for (int i = 0; i <= dim; i++)
+    {
+        mat_ans.mat_index[(dim + 1) * i] = 1.0f;
+    }
+    mem_usage += block_size * sizeof(Dtype);
+    pList = DMadd_p(mat_ans.mat_index, pList);
+    return mat_ans;
 }
 void DMprint(Matrix *tMat)
 { // a straightforward print function
@@ -130,6 +164,7 @@ void DMfree_single(Matrix tMat)
 }
 void free_pList(memMgmt *heap)
 {
+    pList = DMadd_p(NULL, pList);
     memMgmt *proc = heap;
     while (proc->next != NULL)
     {
@@ -137,4 +172,6 @@ void free_pList(memMgmt *heap)
         proc->matrix_p = NULL;
         proc = proc->next;
     }
+    free(heap);
+    free(proc);
 }
