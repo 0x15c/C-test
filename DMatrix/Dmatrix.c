@@ -33,6 +33,63 @@ memMgmt *DMadd_p(Dtype *pMat_index, memMgmt *link)
 
     return link_next;
 }
+void DMrowch(Matrix *target, int i, int j) // exchange the i-th and j-th row
+{
+    Dtype *tmp = (Dtype *)malloc(sizeof(Dtype) * target->col);
+    for (int k = 0; k < target->col; k++)
+    {
+        tmp[k] = target->mat_index[k + i * target->col];
+        target->mat_index[k + i * target->col] = target->mat_index[k + j * target->col];
+    }
+    for (int k = 0; k < target->col; k++)
+    {
+        target->mat_index[k + j * target->col] = tmp[k];
+    }
+    free(tmp);
+}
+int DMrowscale(Matrix *target, int i) //
+{
+    int k, l = 0;
+    float scale = 0;
+    for (k = 0; k < target->col; k++)
+    {
+        if (!(_is_equal(0, target->mat_index[k + i * target->col])))
+        {
+            scale = target->mat_index[k + i * target->col];
+            target->mat_index[k + i * target->col] = 1;
+            for (l = k + 1; l < target->col; l++)
+            {
+                target->mat_index[l + i * target->col] /= scale;
+            }
+            return k; // position of first entry of non-zero column.
+        }
+    }
+    // return -1; //return -1 if all entries of the row are zeros.
+}
+void DMrowelim(Matrix *target, int i, int j) // row j minus row i
+{
+    for (int k = 0; k < target->col; k++)
+    {
+        target->mat_index[k + j * target->col] -= target->mat_index[k + i * target->col];
+    }
+}
+Matrix DMRef(Matrix *tMat)
+{
+    int i, j = 0;
+    int max = 0;
+    int *nzero_pos = (int *)malloc(sizeof(int) * tMat->row);
+    struct rowch_ord
+    {
+        int operand_1;
+        int operand_2;
+    };
+    // for 1th col
+    for (i = 0; i < tMat->row; i++)
+    {
+        nzero_pos[i] = DMrowscale(tMat, i);
+    } // scale each column
+
+}
 Matrix DMtrans(Matrix *tMat)
 {
     int i, j, tmp = 0;
