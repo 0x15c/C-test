@@ -14,7 +14,7 @@
 // To free the memory allocated by malloc() during the process of a matrix operation automatically,
 // a linklist is defined to maintain the address of those pointers,
 // an initiate and a de-initiate function are designed for auto-freeing.
-int mem_usage;         // count by Byte
+int mem_usage; // count by Byte
 Dtype det;
 memMgmt *pList = NULL; // a global variable for locating the element of linklist
 memMgmt *DMinit()      // initiate the linklist
@@ -75,7 +75,7 @@ int DMrowscale(Matrix *target, int i) //
             target->mat_index[k + i * target->col] = 1;
             for (l = k + 1; l < target->col; l++)
             {
-                target->mat_index[l + i * target->col] /= scale;  
+                target->mat_index[l + i * target->col] /= scale;
             }
             det *= scale;
             return k; // position of first entry of non-zero column.
@@ -229,12 +229,23 @@ Matrix DMIdenti(int dim)
 }
 Dtype DMdet(Matrix *tMat)
 {
+    int block_size = tMat->col * tMat->row;
     if (tMat->col != tMat->row)
         return NAN;
     Matrix upper = DMRef(tMat);
-    //free(upper.mat_index);
+    det = fabs(det);
+    // free(upper.mat_index);
+    for (int i = 0; i < block_size; i += 2)
+    {
+        if (tMat->mat_index[i] < 0)
+            det = -det;
+    }
+    for (int i = 1; i < block_size; i += 2)
+    {
+        if (tMat->mat_index[i] > 0)
+            det = -det;
+    }
     return det;
-    
 }
 void DMprint(Matrix *tMat)
 { // a straightforward print function
