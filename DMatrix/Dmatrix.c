@@ -47,13 +47,28 @@ void DMrowch(Matrix *target, int i, int j) // exchange the i-th and j-th row
     }
     free(tmp);
 }
+void DMrowch_multi(Matrix *target, int *order)
+{
+    int block_size = target->col * target->row;
+    Dtype *tmp = (Dtype *)malloc(sizeof(Dtype) * block_size);
+    for (int i = 0; i < target->row; i++)
+    {
+        for (int j = 0; j < target->col; j++)
+        {
+            tmp[j + i * target->col] = target->mat_index[j + order[i] * target->col];
+        }
+    }
+    Dtype *ptr_del = target->mat_index;
+    target->mat_index = tmp;
+    // free(ptr_del);
+}
 int DMrowscale(Matrix *target, int i) //
 {
     int k, l = 0;
     float scale = 0;
     for (k = 0; k < target->col; k++)
     {
-        if (!(_is_equal(0, target->mat_index[k + i * target->col])))
+        if (fabs(target->mat_index[k + i * target->col]) > _eps)
         {
             scale = target->mat_index[k + i * target->col];
             target->mat_index[k + i * target->col] = 1;
@@ -75,20 +90,41 @@ void DMrowelim(Matrix *target, int i, int j) // row j minus row i
 }
 Matrix DMRef(Matrix *tMat)
 {
-    int i, j = 0;
+    int i, j, k;
     int max = 0;
     int *nzero_pos = (int *)malloc(sizeof(int) * tMat->row);
-    struct rowch_ord
-    {
-        int operand_1;
-        int operand_2;
-    };
     // for 1th col
-    for (i = 0; i < tMat->row; i++)
+    for (j = 0; j < tMat->row; j++)
     {
-        nzero_pos[i] = DMrowscale(tMat, i);
-    } // scale each column
+        for (i = 0; i < tMat->row; i++)
+        {
+            nzero_pos[i] = DMrowscale(tMat, i);
+        } // scale each column
+        int *order = rearrange(nzero_pos, tMat->row);
+        DMrowch_multi(tMat, order);
+        for (k = j + 1; (k < tMat->row) && (nzero_pos[order[k]] == j); k++)
+        {
+            DMrowelim(tMat, j, k);
+        }
+    }
+    // for 2th col
+    // for (i = 0; i < tMat->row; i++)
+    // {
+    //     nzero_pos[i] = DMrowscale(tMat, i);
+    // } // scale each column
+    // order = rearrange(nzero_pos, tMat->row);
+    // DMrowch_multi(tMat, order);
+    // for (k = 2; (k < tMat->row) && (nzero_pos[order[k]] == 1); k++)
+    // {
+    //     DMrowelim(tMat, 1, k);
+    // }
 
+    Matrix mat_ans;
+    mat_ans.row = tMat->row;
+    mat_ans.col = tMat->col;
+    mat_ans.mat_index = tMat->mat_index;
+
+    return mat_ans;
 }
 Matrix DMtrans(Matrix *tMat)
 {
@@ -218,6 +254,43 @@ void DMfree_single(Matrix tMat)
     if (tMat.mat_index != NULL)
         free(tMat.mat_index);
     tMat.mat_index = NULL;
+}
+int *rearrange(int *input, int arr_len)
+{
+    int *data = (int *)malloc(sizeof(int) * arr_len);
+    // int *arrange = (int *)malloc(sizeof(int) * arr_len);
+    int *order = (int *)malloc(sizeof(int) * arr_len);
+    for (int i = 0; i < arr_len; ++i)
+    {
+        data[i] = input[i];
+    }
+    int max = 0;
+    int min = 0;
+    for (int i = 0; i < arr_len; i++)
+    {
+        if (data[i] > max)
+        {
+            max = data[i];
+        }
+    }
+    for (int k = 0; k < arr_len; k++)
+    {
+        int j = 0;
+        for (int i = 0; i < arr_len; i++)
+        {
+            if (data[i] <= min)
+            {
+                min = data[i];
+                // arrange[k] = data[i];
+                j = i;
+            }
+        }
+        data[j] = max + 1;
+        order[k] = j;
+        min = max;
+    }
+    free(data);
+    return order;
 }
 void free_pList(memMgmt *heap)
 {

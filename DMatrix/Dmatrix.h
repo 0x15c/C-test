@@ -43,7 +43,7 @@ Matrix DMIdenti(int dim);
 
 void DMrowch(Matrix *target, int i, int j);
 void DMrowch_multi(Matrix *target, int *order);
-int DMrowscale(Matrix *target, int i, int col);
+int DMrowscale(Matrix *target, int i);
 void DMrowelim(Matrix *target, int i, int j);
 
 Matrix DMIdenti(int dim);
