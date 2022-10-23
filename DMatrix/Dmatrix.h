@@ -38,8 +38,12 @@ Matrix DMtrans(Matrix *tMat);
 Matrix DMupper(Matrix *tMat);
 Matrix DMInv(Matrix *tMat);
 Matrix DMRef(Matrix *tMat);
+Matrix DMZeros(int dim);
+Matrix DMIdenti(int dim);
+
 void DMrowch(Matrix *target, int i, int j);
-int DMrowscale(Matrix *target, int i);
+void DMrowch_multi(Matrix *target, int *order);
+int DMrowscale(Matrix *target, int i, int col);
 void DMrowelim(Matrix *target, int i, int j);
 
 Matrix DMIdenti(int dim);
@@ -51,4 +55,5 @@ memMgmt *DMinit();
 memMgmt *DMadd_p(Dtype *pMat_index, memMgmt *link);
 void free_pList(memMgmt *heap);
 void DMerrHandler();
+int *rearrange(int *input, int arr_len);
 #endif
