@@ -25,6 +25,11 @@ typedef struct Matrix
     int col, row;
     Dtype *mat_index; // To hold the matrix as a 1-dimensional array.
 } Matrix;             // A matrix must be clarified once it has been decleared.
+typedef struct {
+    Matrix Matrix;
+    Dtype det;
+    
+} Matrix_;
 typedef struct memMgmt
 {
     Dtype *matrix_p;
@@ -53,7 +58,7 @@ void DMprint(Matrix *tMat);
 
 memMgmt *DMinit();
 memMgmt *DMadd_p(Dtype *pMat_index, memMgmt *link);
-void free_pList(memMgmt *heap);
+void DMdeinit(memMgmt *heap);
 void DMerrHandler();
 int *rearrange(int *input, int arr_len);
 #endif

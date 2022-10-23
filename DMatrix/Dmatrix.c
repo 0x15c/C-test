@@ -15,6 +15,7 @@
 // a linklist is defined to maintain the address of those pointers,
 // an initiate and a de-initiate function are designed for auto-freeing.
 int mem_usage;         // count by Byte
+Dtype det;
 memMgmt *pList = NULL; // a global variable for locating the element of linklist
 memMgmt *DMinit()      // initiate the linklist
 {
@@ -65,7 +66,7 @@ void DMrowch_multi(Matrix *target, int *order)
 int DMrowscale(Matrix *target, int i) //
 {
     int k, l = 0;
-    float scale = 0;
+    Dtype scale = 0;
     for (k = 0; k < target->col; k++)
     {
         if (fabs(target->mat_index[k + i * target->col]) > _eps)
@@ -74,13 +75,14 @@ int DMrowscale(Matrix *target, int i) //
             target->mat_index[k + i * target->col] = 1;
             for (l = k + 1; l < target->col; l++)
             {
-                target->mat_index[l + i * target->col] /= scale;
+                target->mat_index[l + i * target->col] /= scale;  
             }
+            det *= scale;
             return k; // position of first entry of non-zero column.
         }
     }
-    // return -1; //return -1 if all entries of the row are zeros.
 }
+
 void DMrowelim(Matrix *target, int i, int j) // row j minus row i
 {
     for (int k = 0; k < target->col; k++)
@@ -92,6 +94,7 @@ Matrix DMRef(Matrix *tMat)
 {
     int i, j, k;
     int max = 0;
+    det = 1;
     int *nzero_pos = (int *)malloc(sizeof(int) * tMat->row);
     // for 1th col
     for (j = 0; j < tMat->row; j++)
@@ -107,23 +110,10 @@ Matrix DMRef(Matrix *tMat)
             DMrowelim(tMat, j, k);
         }
     }
-    // for 2th col
-    // for (i = 0; i < tMat->row; i++)
-    // {
-    //     nzero_pos[i] = DMrowscale(tMat, i);
-    // } // scale each column
-    // order = rearrange(nzero_pos, tMat->row);
-    // DMrowch_multi(tMat, order);
-    // for (k = 2; (k < tMat->row) && (nzero_pos[order[k]] == 1); k++)
-    // {
-    //     DMrowelim(tMat, 1, k);
-    // }
-
     Matrix mat_ans;
     mat_ans.row = tMat->row;
     mat_ans.col = tMat->col;
     mat_ans.mat_index = tMat->mat_index;
-
     return mat_ans;
 }
 Matrix DMtrans(Matrix *tMat)
@@ -212,7 +202,7 @@ Matrix DMZeros(int dim)
     mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
     for (int i = 0; i < block_size; i++)
     {
-        mat_ans.mat_index[i] = 0.0f;
+        mat_ans.mat_index[i] = 0;
     }
     mem_usage += block_size * sizeof(Dtype);
     pList = DMadd_p(mat_ans.mat_index, pList);
@@ -227,15 +217,24 @@ Matrix DMIdenti(int dim)
     mat_ans.mat_index = (Dtype *)malloc(sizeof(Dtype) * block_size);
     for (int i = 0; i < block_size; i++)
     {
-        mat_ans.mat_index[i] = 0.0f;
+        mat_ans.mat_index[i] = 0;
     }
     for (int i = 0; i <= dim; i++)
     {
-        mat_ans.mat_index[(dim + 1) * i] = 1.0f;
+        mat_ans.mat_index[(dim + 1) * i] = 1;
     }
     mem_usage += block_size * sizeof(Dtype);
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
+}
+Dtype DMdet(Matrix *tMat)
+{
+    if (tMat->col != tMat->row)
+        return NAN;
+    Matrix upper = DMRef(tMat);
+    //free(upper.mat_index);
+    return det;
+    
 }
 void DMprint(Matrix *tMat)
 { // a straightforward print function
@@ -292,7 +291,7 @@ int *rearrange(int *input, int arr_len)
     free(data);
     return order;
 }
-void free_pList(memMgmt *heap)
+void DMdeinit(memMgmt *heap)
 {
     pList = DMadd_p(NULL, pList);
     memMgmt *proc = heap;
