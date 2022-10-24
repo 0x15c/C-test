@@ -25,26 +25,25 @@ typedef struct Matrix
     int col, row;
     Dtype *mat_index; // To hold the matrix as a 1-dimensional array.
 } Matrix;             // A matrix must be clarified once it has been decleared.
-typedef struct {
-    Matrix Matrix;
-    Dtype det;
-    
-} Matrix_;
+// typedef struct {
+//     Matrix Matrix;
+//     Dtype det;
+
+// } Matrix_;
 typedef struct memMgmt
 {
     Dtype *matrix_p;
     struct memMgmt *next; // the struct of the memory management linklist
 } memMgmt;
 Dtype DMdet(Matrix *tMat);
-// Matrix* DMmalloc();
 Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat);
 Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat);
 Matrix DMtrans(Matrix *tMat);
 Matrix DMupper(Matrix *tMat);
-Matrix DMInv(Matrix *tMat);
-Matrix DMRef(Matrix *tMat);
-Matrix DMZeros(int dim);
-Matrix DMIdenti(int dim);
+Matrix DMinv(Matrix *tMat);
+Matrix DMref(Matrix *tMat);
+Matrix DMzeros(int dim);
+Matrix DMidenti(int dim);
 
 void DMrowch(Matrix *target, int i, int j);
 void DMrowch_multi(Matrix *target, int *order);

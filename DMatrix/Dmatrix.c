@@ -3,7 +3,7 @@
  * @author 0x15c
  * @brief A wheel reinventing, toy-like matrix process lib for maybe MCUs,
  * including the basic operations for matrix, i.e. multiplication, gauss-
- * jordan elimation, determinate, transpose, inverse, ...
+ * jordan elimation, determinant, transpose, inverse, ...
  * @version 0.1
  * @date 2022-09-28
  *
@@ -11,12 +11,9 @@
  *
  */
 #include "Dmatrix.h"
-// To free the memory allocated by malloc() during the process of a matrix operation automatically,
-// a linklist is defined to maintain the address of those pointers,
-// an initiate and a de-initiate function are designed for auto-freeing.
-int mem_usage; // count by Byte
-Dtype det;
-memMgmt *pList = NULL; // a global variable for locating the element of linklist
+int mem_usage;         // count by Byte
+Dtype det;             // a global variable to hold determinant
+memMgmt *pList = NULL; // a global variable to locate the heap
 memMgmt *DMinit()      // initiate the linklist
 {
     memMgmt *init = (memMgmt *)malloc(sizeof(memMgmt));
@@ -48,7 +45,7 @@ void DMrowch(Matrix *target, int i, int j) // exchange the i-th and j-th row
     }
     free(tmp);
 }
-void DMrowch_multi(Matrix *target, int *order)
+void DMrowch_multi(Matrix *target, int *order) // read the preset order as reference, fill rows in a blank array.
 {
     int block_size = target->col * target->row;
     Dtype *tmp = (Dtype *)malloc(sizeof(Dtype) * block_size);
@@ -59,11 +56,13 @@ void DMrowch_multi(Matrix *target, int *order)
             tmp[j + i * target->col] = target->mat_index[j + order[i] * target->col];
         }
     }
-    Dtype *ptr_del = target->mat_index;
-    target->mat_index = tmp;
-    // free(ptr_del);
+    for (int i = 0; i < block_size; i++)
+    {
+        target->mat_index[i] = tmp[i];
+    }
+    free(tmp);
 }
-int DMrowscale(Matrix *target, int i) //
+int DMrowscale(Matrix *target, int i) // determine the pivot column and return its position
 {
     int k, l = 0;
     Dtype scale = 0;
@@ -82,7 +81,6 @@ int DMrowscale(Matrix *target, int i) //
         }
     }
 }
-
 void DMrowelim(Matrix *target, int i, int j) // row j minus row i
 {
     for (int k = 0; k < target->col; k++)
@@ -90,13 +88,12 @@ void DMrowelim(Matrix *target, int i, int j) // row j minus row i
         target->mat_index[k + j * target->col] -= target->mat_index[k + i * target->col];
     }
 }
-Matrix DMRef(Matrix *tMat)
+Matrix DMref(Matrix *tMat) // Gauss Elimination
 {
     int i, j, k;
     int max = 0;
     det = 1;
     int *nzero_pos = (int *)malloc(sizeof(int) * tMat->row);
-    // for 1th col
     for (j = 0; j < tMat->row; j++)
     {
         for (i = 0; i < tMat->row; i++)
@@ -116,7 +113,7 @@ Matrix DMRef(Matrix *tMat)
     mat_ans.mat_index = tMat->mat_index;
     return mat_ans;
 }
-Matrix DMtrans(Matrix *tMat)
+Matrix DMtrans(Matrix *tMat) // transpose matrix
 {
     int i, j, tmp = 0;
     int block_size = tMat->col * tMat->row;
@@ -136,7 +133,7 @@ Matrix DMtrans(Matrix *tMat)
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
 }
-Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
+Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat) // matrix multiplication
 {
     int p = 0;
     Matrix mat_ans;
@@ -167,8 +164,8 @@ Matrix DMmultiply(Matrix *s1Mat, Matrix *s2Mat)
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
 }
-Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
-{ // link 2 Matrices by column, which requires those have the same cloumns.
+Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat) // linking 2 source matrices by column
+{
     Matrix mat_ans;
     mat_ans.mat_index = NULL;
     if ((mat_ans.row = s1Mat->row) != s2Mat->row)
@@ -193,7 +190,7 @@ Matrix DMaugment(Matrix *s1Mat, Matrix *s2Mat)
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
 }
-Matrix DMZeros(int dim)
+Matrix DMzeros(int dim) // generate & return an zero matrix
 {
     int block_size = dim * dim;
     Matrix mat_ans;
@@ -208,7 +205,7 @@ Matrix DMZeros(int dim)
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
 }
-Matrix DMIdenti(int dim)
+Matrix DMidenti(int dim) // generate & return an identity matrix
 {
     int block_size = dim * dim;
     Matrix mat_ans;
@@ -227,14 +224,13 @@ Matrix DMIdenti(int dim)
     pList = DMadd_p(mat_ans.mat_index, pList);
     return mat_ans;
 }
-Dtype DMdet(Matrix *tMat)
+Dtype DMdet(Matrix *tMat) // return the determinant of the input matrix
 {
     int block_size = tMat->col * tMat->row;
     if (tMat->col != tMat->row)
         return NAN;
-    Matrix upper = DMRef(tMat);
+    Matrix upper = DMref(tMat);
     det = fabs(det);
-    // free(upper.mat_index);
     for (int i = 0; i < block_size; i += 2)
     {
         if (tMat->mat_index[i] < 0)
@@ -247,8 +243,8 @@ Dtype DMdet(Matrix *tMat)
     }
     return det;
 }
-void DMprint(Matrix *tMat)
-{ // a straightforward print function
+void DMprint(Matrix *tMat) // a straightforward print function
+{
     int i, j = 0;
     for (i = 0; i < tMat->row; i++)
     {
@@ -259,16 +255,9 @@ void DMprint(Matrix *tMat)
         printf("\n");
     }
 }
-void DMfree_single(Matrix tMat)
-{
-    if (tMat.mat_index != NULL)
-        free(tMat.mat_index);
-    tMat.mat_index = NULL;
-}
-int *rearrange(int *input, int arr_len)
+int *rearrange(int *input, int arr_len) // rearrange the input value in ascending form, return the rearranged order
 {
     int *data = (int *)malloc(sizeof(int) * arr_len);
-    // int *arrange = (int *)malloc(sizeof(int) * arr_len);
     int *order = (int *)malloc(sizeof(int) * arr_len);
     for (int i = 0; i < arr_len; ++i)
     {
@@ -291,7 +280,6 @@ int *rearrange(int *input, int arr_len)
             if (data[i] <= min)
             {
                 min = data[i];
-                // arrange[k] = data[i];
                 j = i;
             }
         }
@@ -302,7 +290,7 @@ int *rearrange(int *input, int arr_len)
     free(data);
     return order;
 }
-void DMdeinit(memMgmt *heap)
+void DMdeinit(memMgmt *heap) // free the allocated memory
 {
     pList = DMadd_p(NULL, pList);
     memMgmt *proc = heap;
